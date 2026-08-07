@@ -2,6 +2,8 @@ package com.example.user.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 //@EnableEurekaClient: In modern Spring Cloud versions, you no longer need any annotation on your main class to enable Eureka client functionality.

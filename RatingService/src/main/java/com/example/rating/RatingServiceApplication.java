@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class RatingServiceApplication {
@@ -30,4 +31,5 @@ public class RatingServiceApplication {
             System.out.println("==========================================");
         };
     }
+
 }

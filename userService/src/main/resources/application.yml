@@ -16,4 +16,14 @@ spring:
       hibernate:
         formate_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  application:
+    name: USER-SERVICE
 
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true # By default, it's true you can remove it also.
+    service-url:
+      defaultZone: http://localhost:8761/eureka # It will be using this url to register to the server

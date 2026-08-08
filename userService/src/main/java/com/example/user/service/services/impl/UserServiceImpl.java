@@ -1,5 +1,6 @@
 package com.example.user.service.services.impl;
 
+import com.example.user.service.entities.Hotel;
 import com.example.user.service.entities.Rating;
 import com.example.user.service.entities.User;
 import com.example.user.service.exceptions.ResourceNotFoundException;
@@ -43,6 +44,16 @@ public class UserServiceImpl implements UserService {
                     ? Arrays.asList(ratingsOfUser)
                     : Collections.emptyList();
 
+            // Now we are going to set this rating belongs to which hotel.
+            for(Rating rating : ratings)
+            {
+                if(rating.getRatingId() != null)
+                {
+                    Hotel hotel = restTemplate.getForObject("http://localhost:8082/hotels/" + rating.getHotelId(), Hotel.class);
+                    rating.setHotel(hotel);
+                }
+            }
+
             user.setRatings(ratings);
         }
 
@@ -73,6 +84,17 @@ public class UserServiceImpl implements UserService {
                 : Collections.emptyList();
 
         log.info("FETCHED RATING ARRAY: {}", ratings);
+
+        // Now we are going to set this rating belongs to which hotel.
+        for(Rating rating : ratings)
+        {
+            if(rating.getRatingId() != null)
+            {
+                Hotel hotel = restTemplate.getForObject("http://localhost:8082/hotels/" + rating.getHotelId(), Hotel.class);
+                rating.setHotel(hotel);
+            }
+
+        }
 
         user.setRatings(ratings);
 

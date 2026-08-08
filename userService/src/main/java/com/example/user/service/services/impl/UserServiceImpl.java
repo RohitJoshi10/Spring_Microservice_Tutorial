@@ -5,6 +5,7 @@ import com.example.user.service.entities.Rating;
 import com.example.user.service.entities.User;
 import com.example.user.service.exceptions.ResourceNotFoundException;
 import com.example.user.service.external.services.HotelService;
+import com.example.user.service.external.services.RatingService;
 import com.example.user.service.repositories.UserRepository;
 import com.example.user.service.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private HotelService hotelService;
 
+    @Autowired
+    RatingService ratingService;
+
     @Override
     public User saveUser(User user) {
         String randomUserId = UUID.randomUUID().toString();
@@ -39,31 +43,56 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll();
 
         for (User user : users) {
-            Rating[] ratingsOfUser = restTemplate.getForObject(
-                    "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
-                    Rating[].class
-            );
 
-            List<Rating> ratings = (ratingsOfUser != null)
-                    ? Arrays.asList(ratingsOfUser)
-                    : Collections.emptyList();
+            List<Rating> ratingsOfUser = ratingService.getRatingsByUserId(user.getUserId());
 
             // Now we are going to set this rating belongs to which hotel.
-            for(Rating rating : ratings)
+            for(Rating rating : ratingsOfUser)
             {
                 if(rating.getRatingId() != null)
                 {
-                    Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+                    Hotel hotel = hotelService.getHotel(rating.getHotelId());
                     rating.setHotel(hotel);
                 }
             }
 
-            user.setRatings(ratings);
+            user.setRatings(ratingsOfUser);
         }
-
 
         return users;
     }
+
+// Using REST-TEMPLATE
+//    @Override
+//    public List<User> getAllUser() {
+//        List<User> users = userRepository.findAll();
+//
+//        for (User user : users) {
+//            Rating[] ratingsOfUser = restTemplate.getForObject(
+//                    "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
+//                    Rating[].class
+//            );
+//
+//            List<Rating> ratings = (ratingsOfUser != null)
+//                    ? Arrays.asList(ratingsOfUser)
+//                    : Collections.emptyList();
+//
+//            // Now we are going to set this rating belongs to which hotel.
+//            for(Rating rating : ratings)
+//            {
+//                if(rating.getRatingId() != null)
+//                {
+//                    Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+//                    rating.setHotel(hotel);
+//                }
+//            }
+//
+//            user.setRatings(ratings);
+//        }
+//
+//
+//        return users;
+//    }
 
     @Override
     public User getUser(String userId) {
@@ -77,20 +106,24 @@ public class UserServiceImpl implements UserService {
         // http://localhost:8083/ratings/users/15a01006-a4f9-463d-9e12-6a1a573af8c9
 
         // For now using REST TEMPLATE : Fetch ratings from RATING-SERVICE
-        Rating[] ratingsOfUser = restTemplate.getForObject(
-                "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
-                Rating[].class
-        );
+//        Rating[] ratingsOfUser = restTemplate.getForObject(
+//                "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
+//                Rating[].class
+//        );
+
+        // Using Feign Client
+        List<Rating> ratingsOfUser = ratingService.getRatingsByUserId(user.getUserId());
+
 
        // Safe check: If null, assign an empty list instead of throwing NullPointerException
-        List<Rating> ratings = (ratingsOfUser != null)
-                ? Arrays.asList(ratingsOfUser)
-                : Collections.emptyList();
+//        List<Rating> ratings = (ratingsOfUser != null)
+//                ? Arrays.asList(ratingsOfUser)
+//                : Collections.emptyList();
 
-        log.info("FETCHED RATING ARRAY: {}", ratings);
+        log.info("FETCHED RATING ARRAY: {}", ratingsOfUser);
 
         // Now we are going to set this rating belongs to which hotel.
-        for(Rating rating : ratings)
+        for(Rating rating : ratingsOfUser)
         {
             if(rating.getRatingId() != null)
             {
@@ -102,7 +135,7 @@ public class UserServiceImpl implements UserService {
 
         }
 
-        user.setRatings(ratings);
+        user.setRatings(ratingsOfUser);
 
         return user;
     }

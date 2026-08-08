@@ -4,6 +4,7 @@ import com.example.user.service.entities.Hotel;
 import com.example.user.service.entities.Rating;
 import com.example.user.service.entities.User;
 import com.example.user.service.exceptions.ResourceNotFoundException;
+import com.example.user.service.external.services.HotelService;
 import com.example.user.service.repositories.UserRepository;
 import com.example.user.service.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RestTemplate restTemplate; // To make it autowired we need its bean also.
+
+    @Autowired
+    private HotelService hotelService;
 
     @Override
     public User saveUser(User user) {
@@ -90,7 +94,9 @@ public class UserServiceImpl implements UserService {
         {
             if(rating.getRatingId() != null)
             {
-                Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+                // Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+                // Now as i am using fegin client so no need for rest template code
+                Hotel hotel = hotelService.getHotel(rating.getHotelId());
                 rating.setHotel(hotel);
             }
 

@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
         for (User user : users) {
             Rating[] ratingsOfUser = restTemplate.getForObject(
-                    "http://localhost:8083/ratings/users/" + user.getUserId(),
+                    "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
                     Rating[].class
             );
 
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
             {
                 if(rating.getRatingId() != null)
                 {
-                    Hotel hotel = restTemplate.getForObject("http://localhost:8082/hotels/" + rating.getHotelId(), Hotel.class);
+                    Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
                     rating.setHotel(hotel);
                 }
             }
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
         // For now using REST TEMPLATE : Fetch ratings from RATING-SERVICE
         Rating[] ratingsOfUser = restTemplate.getForObject(
-                "http://localhost:8083/ratings/users/" + user.getUserId(),
+                "http://RATING-SERVICE/ratings/users/" + user.getUserId(),
                 Rating[].class
         );
 
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         {
             if(rating.getRatingId() != null)
             {
-                Hotel hotel = restTemplate.getForObject("http://localhost:8082/hotels/" + rating.getHotelId(), Hotel.class);
+                Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotels/" + rating.getHotelId(), Hotel.class);
                 rating.setHotel(hotel);
             }
 

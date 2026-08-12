@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: API-GATEWAY
+  config:
+    import: optional:configserver:http://localhost:8085 # configserver is a fixed keyword and optional means if my config server is down for any reason then my client MS should not get down.
 
   cloud:
     gateway:
@@ -23,11 +25,11 @@ spring:
           predicates:
             - Path=/ratings/**
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/

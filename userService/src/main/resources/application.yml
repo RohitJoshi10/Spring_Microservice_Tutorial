@@ -31,3 +31,46 @@ spring:
 #    register-with-eureka: true # By default, it's true you can remove it also.
 #    service-url:
 #      defaultZone: http://localhost:8761/eureka/ # It will be using this url to register to the server
+
+# Actuators configuration
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*" #health
+
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+# Resilience4j configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED # TIME_BASED
+
+
+
+
+
+
+
+
+
+
+
+
+

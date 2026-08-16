@@ -2,6 +2,8 @@ package com.example.user.service.controllers;
 
 import com.example.user.service.entities.User;
 import com.example.user.service.services.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -23,11 +26,27 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user1);
     }
 
+
+    // This is our API which is calling other service
     @GetMapping("/{userId}")
+    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId){
         User user = userService.getUser(userId);
         return ResponseEntity.ok(user);
     }
+
+    // Creating fallback method for circuit breaker (Return type should be same)
+    public ResponseEntity<User> ratingHotelFallback(String userId, Exception e){
+        log.info("Fallback is executed because service is down : {}", e.getMessage());
+        User user  = User.builder()
+                .email("dummy@gmail.com")
+                .name("Dummy")
+                .about("This user is created because some service is down")
+                .userId("1234")
+                .build();
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUser(){

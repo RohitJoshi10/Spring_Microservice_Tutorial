@@ -3,6 +3,7 @@ package com.example.user.service.controllers;
 import com.example.user.service.entities.User;
 import com.example.user.service.services.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,8 @@ public class UserController {
     // This is our API which is calling other service
     @GetMapping("/{userId}")
     // @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
-    @Retry(name="ratingHotelService", fallbackMethod = "ratingHotelFallback")
+    // @Retry(name="ratingHotelService", fallbackMethod = "ratingHotelFallback")
+    @RateLimiter(name = "userRateLimiter", fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId){
         log.info("Retry Count: {}", retryCount);
         retryCount++;
@@ -60,8 +62,4 @@ public class UserController {
         List<User> users = userService.getAllUser();
         return ResponseEntity.ok(users);
     }
-
-
-
-
 }

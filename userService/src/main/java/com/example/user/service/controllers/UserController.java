@@ -3,6 +3,7 @@ package com.example.user.service.controllers;
 import com.example.user.service.entities.User;
 import com.example.user.service.services.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
@@ -27,13 +28,19 @@ public class UserController {
     }
 
 
+    int retryCount = 1;
+
     // This is our API which is calling other service
     @GetMapping("/{userId}")
-    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    // @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    @Retry(name="ratingHotelService", fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId){
+        log.info("Retry Count: {}", retryCount);
+        retryCount++;
         User user = userService.getUser(userId);
         return ResponseEntity.ok(user);
     }
+
 
     // Creating fallback method for circuit breaker (Return type should be same)
     public ResponseEntity<User> ratingHotelFallback(String userId, Exception e){
